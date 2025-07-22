@@ -1,34 +1,198 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My First MiniApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .user-info {
+            background: var(--tg-theme-secondary-bg-color, #f1f1f1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+        button {
+            background: var(--tg-theme-button-color, #007bff);
+            color: var(--tg-theme-button-text-color, white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello Telegram MiniApp!</h1> 
-    <p>User data will appear here:</p>
-    <div id="user-info"></div>
-    <button id="main-button">Test Button</button>
-    <script>
-        // Инициализация Telegram WebApp
-        let tg = window.Telegram.WebApp
-        // Показываем информацию о пользователе
-        document.getElemerntById('user-info').innerHTML = `
-        <p>First Name: ${tg.initDataUnsafe.user?.first_name || 'Unknown'}</p>
-        <p>Username: ${tg.initDataUnsafe.user?.username || 'Unknown'}</p>
-        <p>Thwme: ${tg.colorScheme}</p>
-        `;
-        // Настраиваем главную кнопку
-        tg.MaimButton.text = "Close App";
-        tg.MainButton.show();
+    <div class="container">
+        <h1>🚀 My First MiniApp</h1>
+        
+        <div id="environment-info"></div>
+        <div id="user-info" class="user-info"></div>
+        
+        <button id="theme-button">Toggle Theme Info</button>
+        <button id="platform-button">Show Platform Info</button>
+        
+        <div id="additional-info" style="display: none;">
+            <h3>Дополнительная информация:</h3>
+            <div id="platform-details"></div>
+        </div>
+    </div>
 
-        tg.MainButton.onClick(function() {
-            tg.close();
-            // Готово к использованию
+    <script>
+        // Проверяем, доступен ли Telegram WebApp
+        function isTelegramWebApp() {
+            return window.Telegram && window.Telegram.WebApp;
+        }
+
+        // Инициализация
+        let tg = null;
+        let isInTelegram = isTelegramWebApp();
+
+        if (isInTelegram) {
+            tg = window.Telegram.WebApp;
             tg.ready();
-        });
-    </script>   
+            tg.expand(); // Расширяем приложение на весь экран
+        }
+
+        // Показываем информацию о среде выполнения
+        function updateEnvironmentInfo() {
+            const envInfo = document.getElementById('environment-info');
+            
+            if (isInTelegram) {
+                envInfo.innerHTML = `
+                    <div class="success">
+                        ✅ Приложение запущено внутри Telegram
+                    </div>
+                `;
+            } else {
+                envInfo.innerHTML = `
+                    <div class="warning">
+                        ⚠️ Приложение запущено в обычном браузере
+                        <br><small>Для полного функционала откройте через Telegram бот</small>
+                    </div>
+                `;
+            }
+        }
+
+        // Показываем информацию о пользователе
+        function updateUserInfo() {
+            const userInfoDiv = document.getElementById('user-info');
+            
+            if (isInTelegram && tg.initDataUnsafe.user) {
+                const user = tg.initDataUnsafe.user;
+                userInfoDiv.innerHTML = `
+                    <h3>👤 Информация о пользователе:</h3>
+                    <p><strong>Имя:</strong> ${user.first_name || 'Не указано'}</p>
+                    <p><strong>Фамилия:</strong> ${user.last_name || 'Не указана'}</p>
+                    <p><strong>Username:</strong> @${user.username || 'Не указан'}</p>
+                    <p><strong>ID:</strong> ${user.id}</p>
+                    <p><strong>Язык:</strong> ${user.language_code || 'Не указан'}</p>
+                `;
+            } else {
+                userInfoDiv.innerHTML = `
+                    <h3>👤 Информация о пользователе:</h3>
+                    <p>🔒 Данные пользователя доступны только в Telegram</p>
+                    <p><em>Откройте приложение через бот в Telegram, чтобы увидеть ваши данные</em></p>
+                `;
+            }
+        }
+
+        // Показываем информацию о теме
+        function toggleThemeInfo() {
+            if (isInTelegram) {
+                alert(`
+Тема: ${tg.colorScheme}
+Цвет фона: ${tg.themeParams.bg_color || 'default'}
+Цвет текста: ${tg.themeParams.text_color || 'default'}
+Версия: ${tg.version}
+Платформа: ${tg.platform}
+                `);
+            } else {
+                alert('Информация о теме доступна только в Telegram');
+            }
+        }
+
+        // Показываем информацию о платформе
+        function togglePlatformInfo() {
+            const detailsDiv = document.getElementById('additional-info');
+            const platformDiv = document.getElementById('platform-details');
+            
+            if (detailsDiv.style.display === 'none') {
+                detailsDiv.style.display = 'block';
+                
+                if (isInTelegram) {
+                    platformDiv.innerHTML = `
+                        <p><strong>Платформа:</strong> ${tg.platform}</p>
+                        <p><strong>Версия:</strong> ${tg.version}</p>
+                        <p><strong>Высота viewport:</strong> ${tg.viewportHeight}px</p>
+                        <p><strong>Стабильная высота:</strong> ${tg.viewportStableHeight}px</p>
+                        <p><strong>Заголовок цвет:</strong> ${tg.headerColor}</p>
+                        <p><strong>Цвет фона:</strong> ${tg.backgroundColor}</p>
+                    `;
+                } else {
+                    platformDiv.innerHTML = `
+                        <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                        <p><strong>Язык:</strong> ${navigator.language}</p>
+                        <p><strong>Размер экрана:</strong> ${window.screen.width}x${window.screen.height}</p>
+                        <p><strong>Размер окна:</strong> ${window.innerWidth}x${window.innerHeight}</p>
+                    `;
+                }
+            } else {
+                detailsDiv.style.display = 'none';
+            }
+        }
+
+        // Настраиваем Main Button если мы в Telegram
+        if (isInTelegram) {
+            tg.MainButton.text = "Закрыть приложение";
+            tg.MainButton.show();
+            tg.MainButton.onClick(() => {
+                tg.close();
+            });
+        }
+
+        // Привязываем обработчики событий
+        document.getElementById('theme-button').onclick = toggleThemeInfo;
+        document.getElementById('platform-button').onclick = togglePlatformInfo;
+
+        // Инициализируем интерфейс
+        updateEnvironmentInfo();
+        updateUserInfo();
+
+        // Логируем в консоль для отладки
+        console.log('Is Telegram WebApp:', isInTelegram);
+        if (isInTelegram) {
+            console.log('Telegram WebApp object:', tg);
+            console.log('Init data:', tg.initDataUnsafe);
+        }
+    </script>
 </body>
 </html>
