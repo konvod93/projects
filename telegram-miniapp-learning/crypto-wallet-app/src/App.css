@@ -1,38 +1,327 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
+  background: var(--tg-theme-bg-color, #f8f9fa);
+  color: var(--tg-theme-text-color, #333);
+}
+
+.App.dark {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+.app-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Loading spinner */
+.app-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  height: 100vh;
+  background: var(--tg-theme-bg-color, #f8f9fa);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e3e3e3;
+  border-top: 4px solid var(--tg-theme-button-color, #007bff);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* User Profile */
+.user-profile {
+  background: var(--tg-theme-secondary-bg-color, #ffffff);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+.user-info h2 {
+  font-size: 20px;
+  margin-bottom: 5px;
+  color: var(--tg-theme-text-color, #333);
+}
+
+.user-info p {
+  color: var(--tg-theme-hint-color, #666);
+  margin-bottom: 5px;
+}
+
+.user-id {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+  background: var(--tg-theme-bg-color, #f0f0f0);
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.warning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 15px;
+  border-radius: 12px;
+  border-left: 4px solid #ffc107;
+  text-align: center;
+}
+
+/* Wallet Balance */
+.wallet-balance {
+  background: var(--tg-theme-secondary-bg-color, #ffffff);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.balance-header h3 {
+  color: var(--tg-theme-text-color, #333);
+  font-size: 18px;
+}
+
+.refresh-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background: var(--tg-theme-bg-color, #f0f0f0);
+}
+
+.balance-cards {
+  display: flex;
+  gap: 10px;
+}
+
+.balance-card {
+  flex: 1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.balance-card:nth-child(2) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.balance-card:nth-child(3) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.currency {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.amount {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  flex: 1;
+  background: var(--tg-theme-button-color, #007bff);
+  color: var(--tg-theme-button-text-color, white);
+  border: none;
+  border-radius: 12px;
+  padding: 15px 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn.send {
+  background: linear-gradient(135deg, #fd746c 0%, #ff9068 100%);
+}
+
+.action-btn.receive {
+  background: linear-gradient(135deg, #41d0c1 0%, #2eb398 100%);
+}
+
+.action-btn.swap {
+  background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+}
+
+/* Transaction History */
+.transaction-history {
+  background: var(--tg-theme-secondary-bg-color, #ffffff);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.transaction-history h3 {
+  color: var(--tg-theme-text-color, #333);
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transaction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--tg-theme-bg-color, #f8f9fa);
+}
+
+.transaction.send {
+  border-left: 4px solid #fd746c;
+}
+
+.transaction.receive {
+  border-left: 4px solid #41d0c1;
+}
+
+.transaction.swap {
+  border-left: 4px solid #f7971e;
+}
+
+.tx-amount {
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #333);
+}
+
+.tx-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #666);
+}
+
+.tx-status.completed {
+  opacity: 1;
+}
+
+.tx-status.pending {
+  opacity: 0.6;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Demo Mode */
+.demo-mode {
+  background: var(--tg-theme-secondary-bg-color, #ffffff);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.demo-mode h2 {
+  color: var(--tg-theme-text-color, #333);
+  margin-bottom: 10px;
+}
+
+.demo-mode p {
+  color: var(--tg-theme-hint-color, #666);
+  margin-bottom: 20px;
+}
+
+.demo-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feature {
+  padding: 8px 12px;
+  background: var(--tg-theme-bg-color, #f0f0f0);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .app-container {
+    padding: 15px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .balance-cards {
+    flex-direction: column;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
   }
 }
