@@ -311,6 +311,10 @@ body {
   font-size: 14px;
 }
 
+.history-btn {
+  margin-bottom: 30px;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .app-container {

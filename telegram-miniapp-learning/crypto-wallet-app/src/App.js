@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button } from 'react-bootstrap';
+import { ChevronDown, ChevronUp, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { useTelegram } from './hooks/useTelegram';
 import './App.css';
 
@@ -120,56 +123,67 @@ function TransactionHistory() {
   const [transactions] = useState([
     {
       id: 1,
-      type: 'receive',
-      amount: '+5.25 TON',
-      date: '2024-01-15',
-      status: 'completed'
+      type: "receive",
+      amount: "+5.25 TON",
+      date: "2024-01-15",
+      status: "completed",
     },
     {
       id: 2,
-      type: 'send',
-      amount: '-2.10 USDT',
-      date: '2024-01-14',
-      status: 'completed'
+      type: "send",
+      amount: "-2.10 USDT",
+      date: "2024-01-14",
+      status: "completed",
     },
     {
       id: 3,
-      type: 'swap',
-      amount: '0.1 ETH → 150 USDT',
-      date: '2024-01-13',
-      status: 'pending'
-    }
+      type: "swap",
+      amount: "0.1 ETH → 150 USDT",
+      date: "2024-01-13",
+      status: "pending",
+    },
   ]);
 
   return (
-    <div className="transaction-history">
-      <h3>📈 История транзакций</h3>
-      <div className="transactions-list">
-        {transactions.map(tx => (
-          <div key={tx.id} className={`transaction ${tx.type}`}>
-            <div className="tx-info">
-              <div className="tx-amount">{tx.amount}</div>
-              <div className="tx-date">{tx.date}</div>
+    <>
+    <Button variant="primary" className='history-btn' size="lg">
+      <span style={{borderRight: "1px solid white", padding: "10px"}}>История транзакций</span>
+      <span style={{marginLeft: "15px"}}><ChevronDown className="w-5 h-5 text-gray-500" /></span>
+      </Button>
+      <div className="transaction-history">
+        <h3>📈 История транзакций </h3>
+        <div className="transactions-list">
+          {transactions.map((tx) => (
+            <div key={tx.id} className={`transaction ${tx.type}`}>
+              <div className="tx-info">
+                <div className="tx-amount">{tx.amount}</div>
+                <div className="tx-date">{tx.date}</div>
+              </div>
+              <div className={`tx-status ${tx.status}`}>
+                {tx.status === "completed" ? "✅" : "⏳"}
+              </div>
             </div>
-            <div className={`tx-status ${tx.status}`}>
-              {tx.status === 'completed' ? '✅' : '⏳'}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 // Главный компонент приложения
 function App() {
-  const { user, isLoading, isInTelegram, colorScheme, setMainButton } = useTelegram();
+  const { user, isLoading, isInTelegram, colorScheme, setMainButton } =
+    useTelegram();
 
   useEffect(() => {
     if (isInTelegram) {
-      setMainButton('Настройки', () => {
-        alert('Настройки кошелька (в разработке)');
-      }, true);
+      setMainButton(
+        "Настройки",
+        () => {
+          alert("Настройки кошелька (в разработке)");
+        },
+        true
+      );
     }
   }, [isInTelegram, setMainButton]);
 
@@ -186,7 +200,7 @@ function App() {
     <div className={`App ${colorScheme}`}>
       <div className="app-container">
         <UserProfile user={user} isInTelegram={isInTelegram} />
-        
+
         {isInTelegram && (
           <>
             <WalletBalance />
@@ -194,7 +208,7 @@ function App() {
             <TransactionHistory />
           </>
         )}
-        
+
         {!isInTelegram && (
           <div className="demo-mode">
             <h2>🚀 Демо режим</h2>
