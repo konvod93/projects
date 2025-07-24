@@ -221,6 +221,9 @@ body {
   padding: 20px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
+.transaction-history-hidden {
+  display: none
+}
 
 .transaction-history h3 {
   color: var(--tg-theme-text-color, #333);
