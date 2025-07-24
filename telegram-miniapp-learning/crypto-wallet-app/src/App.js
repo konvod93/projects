@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button } from 'react-bootstrap';
-import { ChevronDown, ChevronUp, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import React, { useEffect } from 'react';
 import { useTelegram } from './hooks/useTelegram';
+import { useWalletContext } from './context/WalletContext';
 import './App.css';
 
 // Компонент для отображения информации о пользователе
@@ -31,58 +29,112 @@ function UserProfile({ user, isInTelegram }) {
   );
 }
 
-// Компонент кошелька (заглушка)
-function WalletBalance() {
-  const [balance, setBalance] = useState({
-    ton: 0.00,
-    usdt: 0.00,
-    eth: 0.00
-  });
-
+// Компонент подключения кошелька
+function WalletConnection() {
+  const { isConnected, isLoading, actions } = useWalletContext();
   const { hapticFeedback } = useTelegram();
 
+  const handleConnect = async () => {
+    hapticFeedback('impact', 'medium');
+    await actions.connectWallet('tonkeeper');
+  };
+
+  const handleDisconnect = () => {
+    hapticFeedback('impact', 'heavy');
+    actions.disconnectWallet();
+  };
+
+  if (isConnected) {
+    return (
+      <div className="wallet-connection connected">
+        <div className="connection-status">
+          <span className="status-indicator online"></span>
+          <span>Кошелек подключен</span>
+        </div>
+        <button 
+          className="disconnect-btn" 
+          onClick={handleDisconnect}
+          disabled={isLoading}
+        >
+          Отключить
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wallet-connection">
+      <div className="connection-prompt">
+        <h3>🔗 Подключите кошелек</h3>
+        <p>Для работы с криптовалютами необходимо подключить кошелек</p>
+      </div>
+      <button 
+        className="connect-btn" 
+        onClick={handleConnect}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Подключение...' : '🔌 Подключить TonKeeper'}
+      </button>
+    </div>
+  );
+}
+
+// Обновленный компонент кошелька с Context
+function WalletBalance() {
+  const { balances, isLoading, actions, getTotalUSDValue, lastUpdated } = useWalletContext();
+
   const handleRefresh = () => {
-    hapticFeedback('impact', 'light');
-    // Симулируем обновление баланса
-    setBalance({
-      ton: (Math.random() * 100).toFixed(2),
-      usdt: (Math.random() * 1000).toFixed(2),
-      eth: (Math.random() * 10).toFixed(4)
-    });
+    actions.refreshData();
   };
 
   return (
     <div className="wallet-balance">
       <div className="balance-header">
-        <h3>💰 Баланс кошелька</h3>
-        <button className="refresh-btn" onClick={handleRefresh}>
+        <div>
+          <h3>💰 Баланс кошелька</h3>
+          <p className="total-usd">${getTotalUSDValue()} USD</p>
+        </div>
+        <button 
+          className={`refresh-btn ${isLoading ? 'loading' : ''}`} 
+          onClick={handleRefresh}
+          disabled={isLoading}
+        >
           🔄
         </button>
       </div>
       
+      {lastUpdated && (
+        <p className="last-updated">
+          Обновлено: {new Date(lastUpdated).toLocaleTimeString()}
+        </p>
+      )}
+      
       <div className="balance-cards">
         <div className="balance-card">
           <div className="currency">TON</div>
-          <div className="amount">{balance.ton}</div>
+          <div className="amount">{balances.ton}</div>
         </div>
         
         <div className="balance-card">
           <div className="currency">USDT</div>
-          <div className="amount">{balance.usdt}</div>
+          <div className="amount">{balances.usdt}</div>
         </div>
         
         <div className="balance-card">
           <div className="currency">ETH</div>
-          <div className="amount">{balance.eth}</div>
+          <div className="amount">{balances.eth}</div>
         </div>
       </div>
     </div>
   );
 }
 
-// Компонент кнопок действий
+// Обновленный компонент кнопок действий
 function ActionButtons() {
+  const { isConnected, actions } = useWalletContext();
   const { showAlert, hapticFeedback, showConfirm } = useTelegram();
+
+  if (!isConnected) return null;
 
   const handleSend = () => {
     hapticFeedback('impact', 'medium');
@@ -118,95 +170,71 @@ function ActionButtons() {
   );
 }
 
-// Компонент истории транзакций (заглушка)
+// Обновленный компонент истории транзакций
 function TransactionHistory() {
-  const [isOpen, setIsOpen] = useState(false);
-  const toggleHistory = () => {
-    setIsOpen(!isOpen);
+  const { transactions, showHistory, actions, isConnected } = useWalletContext();
+
+  if (!isConnected) return null;
+
+  const handleToggleHistory = () => {
+    actions.toggleHistory();
   };
-  const [transactions] = useState([
-    {
-      id: 1,
-      type: "receive",
-      amount: "+5.25 TON",
-      date: "2024-01-15",
-      status: "completed",
-    },
-    {
-      id: 2,
-      type: "send",
-      amount: "-2.10 USDT",
-      date: "2024-01-14",
-      status: "completed",
-    },
-    {
-      id: 3,
-      type: "swap",
-      amount: "0.1 ETH → 150 USDT",
-      date: "2024-01-13",
-      status: "pending",
-    },
-  ]);
 
   return (
-    <>
-      <Button
-        variant="primary"
-        className="history-btn"
-        size="lg"
-        onClick={toggleHistory}
-      >
-        <span
-          style={{
-            borderRight: "1px solid white",
-            marginRight: "15px",
-            padding: "10px",
-          }}
-        >
-          История транзакций
-        </span>
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-gray-500" />
-        ) : (
-          <ChevronDown className="w-5 h-5 text-gray-500" />
-        )}
-      </Button>
-      <div className={`${isOpen ? "transaction-history" : "transaction-history-hidden"}`}>
-        <h3>📈 История транзакций </h3>
-        <div className="transactions-list">
-          {transactions.map((tx) => (
-            <div key={tx.id} className={`transaction ${tx.type}`}>
-              <div className="tx-info">
-                <div className="tx-amount">{tx.amount}</div>
-                <div className="tx-date">{tx.date}</div>
-              </div>
-              <div className={`tx-status ${tx.status}`}>
-                {tx.status === "completed" ? "✅" : "⏳"}
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className="transaction-history">
+      <div className="history-header">
+        <h3>📈 История транзакций</h3>
+        <button className="toggle-btn" onClick={handleToggleHistory}>
+          {showHistory ? '👁️ Скрыть' : '👁️ Показать'}
+        </button>
       </div>
-    </>
+      
+      {showHistory && (
+        <div className="transactions-list">
+          {transactions.length === 0 ? (
+            <p className="no-transactions">Пока нет транзакций</p>
+          ) : (
+            transactions.map(tx => (
+              <div key={tx.id} className={`transaction ${tx.type}`}>
+                <div className="tx-info">
+                  <div className="tx-amount">{tx.amount}</div>
+                  <div className="tx-date">
+                    {new Date(tx.date).toLocaleDateString()}
+                  </div>
+                  {tx.hash && (
+                    <div className="tx-hash">{tx.hash}</div>
+                  )}
+                </div>
+                <div className={`tx-status ${tx.status}`}>
+                  {tx.status === 'completed' ? '✅' : '⏳'}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
 // Главный компонент приложения
 function App() {
-  const { user, isLoading, isInTelegram, colorScheme, setMainButton } =
-    useTelegram();
+  const { user, isLoading, isInTelegram, colorScheme, setMainButton } = useTelegram();
+  const { isConnected, error, actions } = useWalletContext();
 
   useEffect(() => {
     if (isInTelegram) {
-      setMainButton(
-        "Настройки",
-        () => {
-          alert("Настройки кошелька (в разработке)");
-        },
-        true
-      );
+      if (isConnected) {
+        setMainButton('Настройки', () => {
+          alert('Настройки кошелька (в разработке)');
+        }, true);
+      } else {
+        setMainButton('Подключить кошелек', () => {
+          actions.connectWallet('tonkeeper');
+        }, true);
+      }
     }
-  }, [isInTelegram, setMainButton]);
+  }, [isInTelegram, isConnected, setMainButton, actions]);
 
   if (isLoading) {
     return (
@@ -220,24 +248,35 @@ function App() {
   return (
     <div className={`App ${colorScheme}`}>
       <div className="app-container">
-        <UserProfile user={user} isInTelegram={isInTelegram} />
-
-        {isInTelegram && (
-          <>
-            <WalletBalance />
-            <ActionButtons />
-            <TransactionHistory />
-          </>
+        {error && (
+          <div className="error-banner">
+            <span>❌ {error}</span>
+            <button onClick={() => actions.setError(null)}>×</button>
+          </div>
         )}
 
-        {!isInTelegram && (
+        <UserProfile user={user} isInTelegram={isInTelegram} />
+        
+        {isInTelegram ? (
+          <>
+            <WalletConnection />
+            {isConnected && (
+              <>
+                <WalletBalance />
+                <ActionButtons />
+                <TransactionHistory />
+              </>
+            )}
+          </>
+        ) : (
           <div className="demo-mode">
             <h2>🚀 Демо режим</h2>
             <p>Это превью криптокошелька для Telegram MiniApp</p>
             <div className="demo-features">
               <div className="feature">✅ React компоненты</div>
+              <div className="feature">✅ Context API</div>
+              <div className="feature">✅ Custom Hooks</div>
               <div className="feature">✅ Telegram Web App API</div>
-              <div className="feature">✅ Адаптивный дизайн</div>
               <div className="feature">🔄 Интеграция с блокчейном (скоро)</div>
             </div>
           </div>
