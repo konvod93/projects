@@ -120,6 +120,10 @@ function ActionButtons() {
 
 // Компонент истории транзакций (заглушка)
 function TransactionHistory() {
+  const [isOpen, setIsOpen] = useState(false)
+  const toggleHistory = () => {
+    setIsOpen(!isOpen)
+  }
   const [transactions] = useState([
     {
       id: 1,
@@ -146,9 +150,9 @@ function TransactionHistory() {
 
   return (
     <>
-    <Button variant="primary" className='history-btn' size="lg">
-      <span style={{borderRight: "1px solid white", padding: "10px"}}>История транзакций</span>
-      <span style={{marginLeft: "15px"}}><ChevronDown className="w-5 h-5 text-gray-500" /></span>
+    <Button variant="primary" className='history-btn' size="lg" onClick={toggleHistory}>
+      <span style={{borderRight: "1px solid white", marginRight: "15px", padding: "10px"}}>История транзакций</span>
+     {isOpen ? (<ChevronUp className="w-5 h-5 text-gray-500" />) : (<ChevronDown className="w-5 h-5 text-gray-500" />)}
       </Button>
       <div className="transaction-history">
         <h3>📈 История транзакций </h3>
